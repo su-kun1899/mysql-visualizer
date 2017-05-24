@@ -10,6 +10,11 @@ Sakila will definitely like it too.
 Defalut branch:   
 * [![CircleCI](https://circleci.com/gh/su-kun1899/shishamo/tree/master.svg?style=svg)](https://circleci.com/gh/su-kun1899/shishamo/tree/master)
 
+## Coverage Report
+
+Default branch:
+* [![codecov](https://codecov.io/gh/su-kun1899/shishamo/branch/master/graph/badge.svg)](https://codecov.io/gh/su-kun1899/shishamo)
+
 ## Embedded MySql
 
 You can use embedded mysql server for demo, testing, development.
