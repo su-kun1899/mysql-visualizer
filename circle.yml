@@ -21,3 +21,4 @@ test:
   post:
     - mkdir -p $CIRCLE_ARTIFACTS/site/jacoco
     - mv target/site/jacoco/ $CIRCLE_ARTIFACTS/site/jacoco
+    - bash <(curl -s https://codecov.io/bash) -t $CODECOV_TOKEN
