@@ -8,13 +8,13 @@ import spock.lang.Specification
 class ColumnSpec extends Specification {
     def 'Get index category'() {
         setup:
-        def column = new Column(name: columnName)
+        def column = makeColumn(columnName)
 
         and:
         def indices = [
-                new Index(category: Index.Category.PRIMARY, columns: [new Column(name: 'test1'), new Column(name: 'test2')]),
-                new Index(category: Index.Category.UNIQUE, columns: [new Column(name: 'test1'), new Column(name: 'test3')]),
-                new Index(category: Index.Category.PERFORMANCE, columns: [new Column(name: 'test4'), new Column(name: 'test5')])
+                makeIndex(Index.Category.PRIMARY, [makeColumn('test1'), makeColumn('test2') ]),
+                makeIndex(Index.Category.UNIQUE, [makeColumn('test1'), makeColumn('test3') ]),
+                makeIndex(Index.Category.PERFORMANCE, [makeColumn('test4'), makeColumn('test5') ])
         ]
 
         expect:
@@ -28,4 +28,23 @@ class ColumnSpec extends Specification {
         'test99'   || null
     }
 
+    def makeColumn(String name) {
+        return new Column(
+                name,
+                "",
+                false,
+                "",
+                "",
+                new ReferencedColumn("", ""),
+                Collections.emptyList()
+        )
+    }
+
+    def makeIndex(Index.Category category, List<Column> columns) {
+        return new Index(
+                '',
+                columns,
+                category
+        )
+    }
 }

@@ -3,6 +3,7 @@ package red.sukun1899.shishamo.service
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties
 import red.sukun1899.shishamo.model.Column
 import red.sukun1899.shishamo.model.Index
+import red.sukun1899.shishamo.model.ReferencedColumn
 import red.sukun1899.shishamo.repository.IndexRepository
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -27,12 +28,17 @@ class IndexServiceSpec extends Specification {
         indexRepository.selectByTableName('schema1', 'table1') >> {
             [
                     new Index(
-                            name: 'index1', category: Index.Category.PRIMARY,
-                            columns: [new Column(name: 'hoge')]
+                            'index1',
+                            [makeColumn('hoge')],
+                            Index.Category.PRIMARY
                     ),
                     new Index(
-                            name: 'index2', category: Index.Category.UNIQUE,
-                            columns: [new Column(name: 'fuga'), new Column(name: 'fuga')])
+                            'index2',
+                            [
+                                    makeColumn('fuga'),
+                                    makeColumn('fuga')
+                            ],
+                            Index.Category.UNIQUE)
             ]
         }
 
@@ -49,26 +55,35 @@ class IndexServiceSpec extends Specification {
         given: 'Shuffle indices'
         def indices = [
                 new Index(
-                        name: 'a_pk', category: Index.Category.PRIMARY,
-                        columns: [new Column(name: 'hoge')]
+                        'a_pk',
+                        [makeColumn('hoge')],
+                        Index.Category.PRIMARY
                 ),
                 new Index(
-                        name: 'b_pk', category: Index.Category.PRIMARY,
-                        columns: [new Column(name: 'fuga')]),
-                new Index(
-                        name: 'a_uk', category: Index.Category.UNIQUE,
-                        columns: [new Column(name: 'piyo')]
+                        'b_pk',
+                        [makeColumn('fuga')],
+                        Index.Category.PRIMARY
                 ),
                 new Index(
-                        name: 'b_uk', category: Index.Category.UNIQUE,
-                        columns: [new Column(name: 'hogehoge')]),
-                new Index(
-                        name: 'a_k', category: Index.Category.PERFORMANCE,
-                        columns: [new Column(name: 'fugafugafuga')]
+                        'a_uk',
+                        [makeColumn('piyo')],
+                        Index.Category.UNIQUE
                 ),
                 new Index(
-                        name: 'b_k', category: Index.Category.PERFORMANCE,
-                        columns: [new Column(name: 'piyopiyo')])
+                        'b_uk',
+                        [makeColumn('hogehoge')],
+                        Index.Category.UNIQUE
+                ),
+                new Index(
+                        'a_k',
+                        [makeColumn('fugafugafuga')],
+                        Index.Category.PERFORMANCE
+                ),
+                new Index(
+                        'b_k',
+                        [makeColumn('piyopiyo')],
+                        Index.Category.PERFORMANCE
+                )
         ]
         Collections.shuffle(indices)
 
@@ -86,5 +101,17 @@ class IndexServiceSpec extends Specification {
         actual.get(3).getName() == 'b_uk'
         actual.get(4).getName() == 'a_k'
         actual.get(5).getName() == 'b_k'
+    }
+
+    def makeColumn(String name) {
+        return new Column(
+                name,
+                "",
+                false,
+                "",
+                "",
+                new ReferencedColumn("", ""),
+                Collections.emptyList()
+        )
     }
 }

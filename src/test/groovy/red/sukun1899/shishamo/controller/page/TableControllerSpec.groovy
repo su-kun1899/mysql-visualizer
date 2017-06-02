@@ -8,10 +8,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import red.sukun1899.shishamo.embedded.mysql.EmbeddedMySqlUtil
-import red.sukun1899.shishamo.model.Column
-import red.sukun1899.shishamo.model.CreateTableStatement
-import red.sukun1899.shishamo.model.Index
-import red.sukun1899.shishamo.model.Table
+import red.sukun1899.shishamo.model.*
 import red.sukun1899.shishamo.service.IndexService
 import red.sukun1899.shishamo.service.TableService
 import spock.lang.Specification
@@ -42,8 +39,8 @@ class TableControllerSpec extends Specification {
     def 'Get all table list'() {
         given: 'Mocking get tables'
         def tables = [
-                new Table(name: 'table1'),
-                new Table(name: 'table2'),
+                makeTable('table1'),
+                makeTable('table2'),
         ]
         Mockito.doReturn(tables).when(tableService).get()
 
@@ -57,7 +54,7 @@ class TableControllerSpec extends Specification {
         Mockito.doReturn(childTableCounts)
                 .when(tableService).getChildTableCountsByTableName()
 
-        and: 'Mocking get column count'
+        and: 'Mocking get makeColumn count'
         def columnCounts = ['table1': 5, 'table2': 10]
         Mockito.doReturn(columnCounts)
                 .when(tableService).getColumnCountsByTableName()
@@ -78,18 +75,18 @@ class TableControllerSpec extends Specification {
 
     def 'Get table detail'() {
         given: 'Mocking get table'
-        def table = new Table(name: 'table1')
+        def table = makeTable('table1')
         Mockito.doReturn(table).when(tableService).get(tableName)
 
         and: 'Mocking get indices'
         def indices = [
-                new Index(name: 'index1', category: Index.Category.PRIMARY, columns: [new Column(name: 'hoge')]),
-                new Index(name: 'index1', category: Index.Category.PERFORMANCE, columns: [new Column(name: 'fuga')])
+                makeIndex('index1', Index.Category.PRIMARY, [makeColumn('hoge')]),
+                makeIndex('index1', Index.Category.PERFORMANCE, [makeColumn('fuga')])
         ]
         Mockito.doReturn(indices).when(indexService).get(tableName)
 
         and: 'Mocking get createTableStatement'
-        def createTableStatement = new CreateTableStatement(tableName: 'table1', ddl: 'dummy')
+        def createTableStatement = makeCreateTableStatement('table1', 'dummy')
         Mockito.doReturn(createTableStatement).when(tableService).getCreateTableStatement(table)
 
         and: 'URL'
@@ -107,5 +104,21 @@ class TableControllerSpec extends Specification {
         where:
         tableName | _
         'table1'  | _
+    }
+
+    def makeTable(String name) {
+        return new Table(name, '', 0L, [])
+    }
+
+    def makeColumn(String name) {
+        return new Column(name, '', false, '', '', new ReferencedColumn('', ''), [])
+    }
+
+    def makeIndex(String name, Index.Category category, List<Column> columns) {
+        return new Index(name, columns, category)
+    }
+
+    def makeCreateTableStatement(String tableName, String dd) {
+        return new CreateTableStatement(tableName, dd)
     }
 }

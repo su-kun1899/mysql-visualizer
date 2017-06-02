@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import red.sukun1899.shishamo.embedded.mysql.EmbeddedMySqlUtil
 import red.sukun1899.shishamo.model.Column
+import red.sukun1899.shishamo.model.ReferencedColumn
 import red.sukun1899.shishamo.model.Table
 import red.sukun1899.shishamo.service.TableService
 import spock.lang.Specification
@@ -41,8 +42,8 @@ class TablesRestControllerSpec extends Specification {
     def 'Get table list'() {
         setup: 'Prepare expected value'
         def tables = [
-                new Table(name: 'table1'),
-                new Table(name: 'table2'),
+                new Table('table1', "", 0L, Collections.emptyList()),
+                new Table('table2', "", 0L, Collections.emptyList()),
         ]
 
         and: 'Mocking service'
@@ -63,8 +64,8 @@ class TablesRestControllerSpec extends Specification {
     def 'Get table detail'() {
         setup: 'Mock service'
         def table = new Table(
-                name: tableName,
-                columns: [new Column(name: columnNames[0]), new Column(name: columnNames[1])]
+                tableName, "", 0L,
+                [makeColumn(columnNames[0]), makeColumn(columnNames[1])]
         )
         Mockito.doReturn(table).when(tableService).get(Mockito.anyString())
 
@@ -88,13 +89,15 @@ class TablesRestControllerSpec extends Specification {
     def 'Get column detail'() {
         setup: 'Prepare expected value'
         def table = new Table(
-                name: 'sample_table',
-                columns: [new Column(
-                        name: name,
-                        defaultValue: defaultValue,
-                        nullable: nullable,
-                        type: type,
-                        comment: comment
+                'sample_table', '', 0L,
+                [new Column(
+                        name,
+                        defaultValue,
+                        nullable,
+                        type,
+                        comment,
+                        new ReferencedColumn('', ''),
+                        Collections.emptyList()
                 )]
         )
 
@@ -109,12 +112,20 @@ class TablesRestControllerSpec extends Specification {
                 .andExpect(jsonPath('$').isNotEmpty())
                 .andExpect(jsonPath('$.columns[0].name').value(table.getColumns().get(0).getName()))
                 .andExpect(jsonPath('$.columns[0].defaultValue').value(table.getColumns().get(0).getDefaultValue()))
-                .andExpect(jsonPath('$.columns[0].nullable').value(table.getColumns().get(0).isNullable()))
+                .andExpect(jsonPath('$.columns[0].nullable').value(table.getColumns().get(0).getNullable()))
                 .andExpect(jsonPath('$.columns[0].type').value(table.getColumns().get(0).getType()))
                 .andExpect(jsonPath('$.columns[0].comment').value(table.getColumns().get(0).getComment()))
 
         where:
         name      | defaultValue     | nullable | type          | comment
         'columnA' | 'default_sample' | true     | 'varchar(40)' | 'comment_sample'
+    }
+
+    def makeColumn(String name) {
+        return new Column(
+                name, null, false, '', '',
+                new ReferencedColumn("", ""),
+                Collections.emptyList()
+        )
     }
 }

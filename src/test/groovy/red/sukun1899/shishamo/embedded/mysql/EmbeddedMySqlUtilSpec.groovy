@@ -15,7 +15,7 @@ class EmbeddedMySqlUtilSpec extends Specification {
         def config = EmbeddedMySqlUtil.getConfig()
 
         then:
-        config.isEnable()
+        config.getEnable()
         config.getWixCharset() == Charset.UTF8
         config.getPort() == 12215
         config.getVersion() == v5_7_latest

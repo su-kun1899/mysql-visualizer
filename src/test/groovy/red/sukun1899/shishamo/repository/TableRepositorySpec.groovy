@@ -110,21 +110,21 @@ class TableRepositorySpec extends Specification {
         table.getColumns().get(0).getType() == 'bigint(19)'
         table.getColumns().get(0).getDefaultValue() == null
         table.getColumns().get(0).getComment() == 'ISBN'
-        assert !table.getColumns().get(0).isNullable()
+        assert !table.getColumns().get(0).getNullable()
 
         and:
         table.getColumns().get(1).getName() == 'title'
         table.getColumns().get(1).getType() == 'varchar(128)'
         table.getColumns().get(1).getDefaultValue() == null
         table.getColumns().get(1).getComment() == 'タイトル'
-        assert !table.getColumns().get(1).isNullable()
+        assert !table.getColumns().get(1).getNullable()
 
         and:
         table.getColumns().get(2).getName() == 'publisherid'
         table.getColumns().get(2).getType() == 'int(10) unsigned'
         table.getColumns().get(2).getDefaultValue() == null
         table.getColumns().get(2).getComment() == '出版社ID'
-        assert !table.getColumns().get(2).isNullable()
+        assert !table.getColumns().get(2).getNullable()
         table.getColumns().get(2).getParentColumn().getTableName() == 'publisher'
 
         and:
@@ -132,7 +132,7 @@ class TableRepositorySpec extends Specification {
         table.getColumns().get(3).getType() == 'varchar(40)'
         table.getColumns().get(3).getDefaultValue() == null
         table.getColumns().get(3).getComment() == '著者'
-        assert !table.getColumns().get(3).isNullable()
+        assert !table.getColumns().get(3).getNullable()
 
         cleanup:
         new DbSetup(destination, sequenceOf(
@@ -406,7 +406,7 @@ class TableRepositorySpec extends Specification {
         )).launch()
 
         when:
-        def actual = tableRepository.showCreateTableStatement(new Table(name: 'book'))
+        def actual = tableRepository.showCreateTableStatement(makeTable('book'))
 
         then:
         actual.tableName == 'book'
@@ -427,5 +427,9 @@ class TableRepositorySpec extends Specification {
                 sql('DROP TABLE IF EXISTS `book`'),
                 sql('SET foreign_key_checks = 1')
         )).launch()
+    }
+
+    def makeTable(String name) {
+        return new Table(name, '', 0L, Collections.emptyList())
     }
 }
